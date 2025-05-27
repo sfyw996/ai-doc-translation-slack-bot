@@ -43,7 +43,11 @@ def translate_text_with_gemini(text: str) -> Optional[str]:
     if not text.strip():
         return ""
     try:
-        prompt = f"以下のテキストを日本語に翻訳してください。:\n\n{text}"
+        prompt = (
+            f"Translate the following text into Japanese. "
+            f"Preserve emoji shortcodes (e.g., :smiley:) exactly as they are. "
+            f"Just provide the translated text, no extra conversational phrases.\n\n{text}"
+        )
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
