@@ -43,10 +43,15 @@ def translate_text_with_gemini(text: str) -> Optional[str]:
     if not text.strip():
         return ""
     try:
+        print(text)
         prompt = (
-            f"Translate the following text into Japanese. "
-            f"Preserve emoji shortcodes (e.g., :smiley:) exactly as they are. "
-            f"Just provide the translated text, no extra conversational phrases.\n\n{text}"
+            f"Translate the following text into Japanese, preserving all Slack-specific formatting. "
+            f"This includes bold (*text*), italics (_text_), strikethrough (~text~), "
+            f"inline code (`code`), code blocks (```code```), "
+            f"links (<url|text>), user mentions (<@U123456789>), "
+            f"channel mentions (<#C123456789|channel-name>), and emoji shortcodes (:smiley:). "
+            f"Ensure the original formatting characters are kept around the translated text. "
+            f"Provide only the translated text, with no additional conversational phrases.\n\n{text}"
         )
         response = model.generate_content(prompt)
         return response.text
