@@ -20,7 +20,7 @@ TRANSLATED_CHANNEL_ID = os.getenv("TRANSLATED_CHANNEL_ID")
 # --- Client Initialization ---
 slack_client = WebClient(token=SLACK_BOT_TOKEN)
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('models/gemini-1.5-flash') # Using the gemini-1.5-flash model
+model = genai.GenerativeModel('models/gemini-2.0-flash') # Using the gemini-1.5-flash model
 
 def get_messages_from_slack(channel_id: str, oldest_timestamp: str, latest_timestamp: str) -> list:
     """Fetches messages from a Slack channel within a time range."""
@@ -33,7 +33,6 @@ def get_messages_from_slack(channel_id: str, oldest_timestamp: str, latest_times
             limit=100
         )
         messages = response["messages"]
-        # TODO: Implement pagination if more than 100 messages are expected
     except SlackApiError as e:
         print(f"Error fetching Slack messages: {e.response['error']}")
     return messages
@@ -43,7 +42,6 @@ def translate_text_with_gemini(text: str) -> Optional[str]:
     if not text.strip():
         return ""
     try:
-        print(text)
         prompt = (
             f"Translate the following text into Japanese, preserving all Slack-specific formatting. "
             f"This includes bold (*text*), italics (_text_), strikethrough (~text~), "
@@ -90,12 +88,9 @@ def get_message_permalink(channel_id: str, message_ts: str) -> Optional[str]:
         return None
 
 def main():
-    """Orchestrates fetching, translating, and posting Slack messages."""
     print("Starting Slack translation bot...")
 
-    tz = pytz.timezone('Asia/Tokyo') # Set timezone to JST
-
-    # Calculate timestamps for the last 24 hours relative to now
+    tz = pytz.timezone('Asia/Tokyo')
     now_jst = datetime.now(tz)
     
     end_time_utc = now_jst.astimezone(pytz.utc)
@@ -106,11 +101,9 @@ def main():
 
     print(f"Processing period: {start_time_utc.strftime('%Y-%m-%d %H:%M:%S UTC')} to {end_time_utc.strftime('%Y-%m-%d %H:%M:%S UTC')}")
 
-    # Fetch messages from the original channel
     messages_to_translate = get_messages_from_slack(ORIGINAL_CHANNEL_ID, oldest_ts, latest_ts)
     print(f"Number of messages retrieved: {len(messages_to_translate)}")
 
-    # Process messages (reversed to post oldest first)
     for message in reversed(messages_to_translate):
         if 'text' in message and not message.get('bot_id') and not message.get('subtype'):
             original_text = message['text']
@@ -120,22 +113,15 @@ def main():
             translated_text = translate_text_with_gemini(original_text)
 
             if translated_text:
-                # Step 1: Post the translated text as the main message in the channel
-                # This call will create the new top-level message.
-                # We capture its timestamp (ts) to use it as the thread_ts for replies.
                 translated_message_ts = post_message_to_slack(TRANSLATED_CHANNEL_ID, translated_text)
                 
                 if translated_message_ts:
-                    # Get the permalink for the original message
                     original_permalink = get_message_permalink(ORIGINAL_CHANNEL_ID, message_ts)
                     
-                    # Step 2: Post the original permalink as a reply in a thread
                     if original_permalink:
                         thread_reply_text = f"Original post: {original_permalink}"
-                        # Call post_message_to_slack again, passing the timestamp of the translated message as thread_ts
                         post_message_to_slack(TRANSLATED_CHANNEL_ID, thread_reply_text, thread_ts=translated_message_ts)
                     else:
-                        # Fallback if permalink couldn't be retrieved
                         post_message_to_slack(TRANSLATED_CHANNEL_ID, "Original post link not available.", thread_ts=translated_message_ts)
                 else:
                     print(f"Failed to post translated message for: {original_text[:50]}...")
