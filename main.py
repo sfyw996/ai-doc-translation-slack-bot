@@ -20,7 +20,7 @@ TRANSLATED_CHANNEL_ID = os.getenv("TRANSLATED_CHANNEL_ID")
 # --- Client Initialization ---
 slack_client = WebClient(token=SLACK_BOT_TOKEN)
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('models/gemini-1.5-flash') # Using the gemini-1.5-flash model
+model = genai.GenerativeModel('models/gemini-2.0-flash') # Using the gemini-1.5-flash model
 
 def get_messages_from_slack(channel_id: str, oldest_timestamp: str, latest_timestamp: str) -> list:
     """Fetches messages from a Slack channel within a time range."""
@@ -43,7 +43,6 @@ def translate_text_with_gemini(text: str) -> Optional[str]:
     if not text.strip():
         return ""
     try:
-        print(text)
         prompt = (
             f"Translate the following text into Japanese, preserving all Slack-specific formatting. "
             f"This includes bold (*text*), italics (_text_), strikethrough (~text~), "
