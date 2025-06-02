@@ -56,6 +56,12 @@ graph TD
 ### 環境変数の設定
 
 プロジェクトのルートディレクトリに`.env`ファイルを作成し、以下の情報を記述します。
+```
+SLACK_BOT_TOKEN="xoxb-YOUR_SLACK_BOT_TOKEN"
+GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+ORIGINAL_CHANNEL_ID="C1234567890" # オリジナルSlackチャンネルID
+TRANSLATED_CHANNEL_ID="C0987654321" # 翻訳済みSlackチャンネルID
+```
 
 ### インストール
 
@@ -89,4 +95,4 @@ python main.py
 ```
 
 ### 今後のアップデート
-`cron`やGithub Actionsでの定期実行システムの導入
+cron や Github Actions での定期実行システムの導入
