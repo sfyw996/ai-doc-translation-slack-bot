@@ -69,7 +69,7 @@ graph TD
 2.  **仮想環境を作成し、アクティベートします**:
 
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate  # macOS/Linux
     # venv\Scripts\activate   # Windows
     ```

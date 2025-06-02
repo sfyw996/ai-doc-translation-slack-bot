@@ -76,7 +76,7 @@ TRANSLATED_CHANNEL_ID="C0987654321" # The ID of the channel to post translations
 2.  **Create and activate a virtual environment**:
 
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate  # macOS/Linux
     # venv\Scripts\activate   # Windows
     ```
